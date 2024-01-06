@@ -1,0 +1,34 @@
+{
+  "name": "bloglist",
+  "version": "1.0.0",
+  "description": "Blog list project for University of Helsinki's MOOC 'Full Stack Open' part4",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --inspect index.js",
+    "lint": "eslint --fix .",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurdanetac/bloglist.git"
+  },
+  "author": "Juan Urdaneta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jurdanetac/bloglist/issues"
+  },
+  "homepage": "https://github.com/jurdanetac/bloglist#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.6.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "nodemon": "^3.0.2"
+  }
+}
