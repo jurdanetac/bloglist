@@ -7,7 +7,7 @@
     "dev": "nodemon --inspect index.js",
     "lint": "eslint --fix .",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,10 @@
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
