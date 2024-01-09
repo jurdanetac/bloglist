@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const dummy = (blogs) => 1;
 
 const totalLikes = (blogs) => {
@@ -10,8 +12,25 @@ const favoriteBlog = (blogs) => {
   return blogs.reduce(reducer, {});
 };
 
+const mostBlogs = (blogs) => {
+  const authors = blogs.map((blog) => blog.author);
+
+  const result = _(authors) // wrap array with lodash
+    .countBy() // get element:count object
+    .entries() // convert to array of tuples
+    .maxBy(_.last); // find the max using count which is second arg
+
+  const topAuthor = {
+    author: _.head(result),
+    blogs: _.last(result),
+  };
+
+  return topAuthor;
+};
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
+  mostBlogs,
 };
