@@ -33,6 +33,14 @@ test('blogs are returned as json', async () => {
   expect(response.body).toHaveLength(initialBlogs.length);
 });
 
+test('verify unique identifier is named id', async () => {
+  const response = await api.get('/api/blogs');
+  const blogs = response.body;
+
+  // check all blogs contain an id field
+  blogs.forEach((b) => expect(b.id).toBeDefined());
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
