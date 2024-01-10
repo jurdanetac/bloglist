@@ -4,10 +4,10 @@
   "description": "Blog list project for University of Helsinki's MOOC 'Full Stack Open' part4",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --inspect index.js",
-    "lint": "eslint --fix .",
-    "start": "node index.js",
-    "test": "jest --verbose"
+    "dev": "NODE_ENV=development nodemon --inspect index.js",
+    "start": "NODE_ENV=production node index.js",
+    "test": "NODE_ENV=test jest --verbose --runInBand",
+    "lint": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
     "mongoose": "^7.6.5"
   },
   "devDependencies": {
@@ -31,9 +32,11 @@
     "eslint-plugin-import": "^2.29.1",
     "jest": "^29.7.0",
     "lodash": "^4.17.21",
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "./tests/teardown.js"
   }
 }
