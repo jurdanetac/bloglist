@@ -41,6 +41,29 @@ test('verify unique identifier is named id', async () => {
   blogs.forEach((b) => expect(b.id).toBeDefined());
 });
 
+test('addition of a new blog', async () => {
+  // create a new blog
+  const newBlog = new Blog({
+    author: 'Test Add',
+    title: 'Test Blog',
+    url: 'https://www.example.com',
+  });
+
+  // send the blog to db
+  const result = await newBlog.save();
+  // check the blog was saved
+  expect(result).toBeDefined();
+
+  // check the length of the blogs has increased
+  const blogs = await api.get('/api/blogs');
+  expect(blogs.body).toHaveLength(initialBlogs.length + 1);
+
+  // check the information of the new blog is correct
+  expect(blogs.body[initialBlogs.length].title).toBe('Test Blog');
+  expect(blogs.body[initialBlogs.length].author).toBe('Test Add');
+  expect(blogs.body[initialBlogs.length].url).toBe('https://www.example.com');
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
