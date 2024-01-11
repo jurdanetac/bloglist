@@ -79,6 +79,34 @@ test('verify likes property if missing from request', async () => {
   expect(result.likes).toBe(0);
 });
 
+describe('verify bad request', () => {
+  const newBlogWithoutTitle = {
+    author: 'Test Without Title',
+    url: 'https://www.example.com',
+  };
+
+  const newBlogWithoutUrl = {
+    author: 'Test Without URL',
+    title: 'Test',
+  };
+
+  test('on missing title', async () => {
+    await api
+      .post('/api/blogs')
+      .send(newBlogWithoutTitle)
+      .expect('Content-Type', /application\/json/)
+      .expect(400);
+  });
+
+  test('on missing url', async () => {
+    await api
+      .post('/api/blogs')
+      .send(newBlogWithoutUrl)
+      .expect('Content-Type', /application\/json/)
+      .expect(400);
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
