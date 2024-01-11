@@ -64,6 +64,20 @@ test('addition of a new blog', async () => {
   expect(blogs.body[initialBlogs.length].url).toBe('https://www.example.com');
 });
 
+test('deletion of a blog', async () => {
+  const blogsAtStart = await Blog.find({});
+  const blogToDelete = blogsAtStart[0];
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204);
+
+  const blogsAtEnd = await Blog.find({});
+
+  expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
+  expect(blogsAtEnd).not.toContain(blogToDelete);
+});
+
 test('verify likes property if missing from request', async () => {
   const newBlog = new Blog({
     author: 'Test Likes',
