@@ -64,6 +64,21 @@ test('addition of a new blog', async () => {
   expect(blogs.body[initialBlogs.length].url).toBe('https://www.example.com');
 });
 
+test('verify likes property if missing from request', async () => {
+  const newBlog = new Blog({
+    author: 'Test Likes',
+    title: 'Test Likes',
+    url: 'https://www.example.com',
+  });
+
+  // send the blog to db
+  const result = await newBlog.save();
+  // check the blog was saved
+  expect(result).toBeDefined();
+  // check if likes field was set to zero
+  expect(result.likes).toBe(0);
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
