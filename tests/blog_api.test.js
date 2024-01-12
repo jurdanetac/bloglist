@@ -123,7 +123,35 @@ describe('deletion of a blog', () => {
     const blogsAtEnd = await Blog.find({});
 
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
-    expect(blogsAtEnd).not.toContain(blogToDelete);
+    expect(blogsAtEnd).not.toContainEqual(blogToDelete);
+  });
+});
+
+describe('update blog information', () => {
+  test('succeeds with status code 200 (OK) if valid id', async () => {
+    const blogsAtStart = await Blog.find({});
+
+    const originalBlog = blogsAtStart.slice(-1)[0];
+
+    const updatedBlog = {
+      id: originalBlog.id,
+      author: originalBlog.author,
+      title: originalBlog.title,
+      likes: originalBlog.likes + 100,
+      url: originalBlog.url,
+    };
+
+    await api
+      .put(`/api/blogs/${updatedBlog.id}`)
+      .send(updatedBlog)
+      .expect(200);
+
+    const blogsAtEnd = await Blog.find({});
+
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
+    expect(blogsAtEnd).not.toContainEqual(originalBlog);
+    // https://github.com/jestjs/jest/issues/9624
+    expect(blogsAtEnd).toContainEqual(expect.objectContaining(updatedBlog));
   });
 });
 
