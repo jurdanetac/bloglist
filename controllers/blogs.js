@@ -1,35 +1,22 @@
-const jwt = require('jsonwebtoken');
 const blogsRouter = require('express').Router();
+const middleware = require('../utils/middleware');
 const Blog = require('../models/blogs');
 const User = require('../models/users');
-
-const getTokenFrom = (request) => {
-  const authorization = request.get('authorization');
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '');
-  }
-  return null;
-};
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { name: 1, username: 1, id: 1 });
   response.json(blogs);
 });
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const { body } = request;
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' });
-  }
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes,
-    user: decodedToken.id,
+    user: request.user,
   });
 
   if (!blog.title) {
@@ -50,22 +37,14 @@ blogsRouter.post('/', async (request, response) => {
   return response.status(201).json(savedBlog);
 });
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
   const { id } = request.params;
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET);
-  console.log(decodedToken);
-
   const blog = await Blog.findById(id);
   const creator = await User.findById(blog.user);
 
   if (!blog) {
     return response.status(400).json({ error: 'bad request: no such blog' });
-  }
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' });
-  } if (decodedToken.id !== creator.id) {
+  } if (request.user !== creator.id) {
     return response.status(401).json({ error: 'only creators can delete blogs' });
   }
 
