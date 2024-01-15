@@ -33,27 +33,44 @@ blogsRouter.post('/', async (request, response) => {
   });
 
   if (!blog.title) {
-    response.status(400).json({ error: 'bad request: no title' });
-  } else if (!blog.url) {
-    response.status(400).json({ error: 'bad request: no url' });
-  } else {
-    // save blog
-    const savedBlog = await blog.save();
-
-    // add blog to user
-    await User.findByIdAndUpdate(
-      savedBlog.user,
-      { $push: { blogs: savedBlog.id } },
-    );
-
-    response.status(201).json(savedBlog);
+    return response.status(400).json({ error: 'bad request: no title' });
+  } if (!blog.url) {
+    return response.status(400).json({ error: 'bad request: no url' });
   }
+
+  // save blog
+  const savedBlog = await blog.save();
+
+  // add blog to user
+  await User.findByIdAndUpdate(
+    savedBlog.user,
+    { $push: { blogs: savedBlog.id } },
+  );
+
+  return response.status(201).json(savedBlog);
 });
 
 blogsRouter.delete('/:id', async (request, response) => {
   const { id } = request.params;
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  console.log(decodedToken);
+
+  const blog = await Blog.findById(id);
+  const creator = await User.findById(blog.user);
+
+  if (!blog) {
+    return response.status(400).json({ error: 'bad request: no such blog' });
+  }
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' });
+  } if (decodedToken.id !== creator.id) {
+    return response.status(401).json({ error: 'only creators can delete blogs' });
+  }
+
   await Blog.deleteOne({ _id: id });
-  response.status(204).end();
+  return response.status(204).end();
 });
 
 blogsRouter.put('/:id', async (request, response) => {
