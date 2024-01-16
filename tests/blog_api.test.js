@@ -122,6 +122,26 @@ describe('addition of a new blog', () => {
     // check if likes field was set to zero
     expect(result.likes).toBe(0);
   });
+
+  test('fails with 401 if token is not provided', async () => {
+    // create a new blog
+    const newBlog = {
+      author: 'Test Add',
+      title: 'Test Blog',
+      url: 'https://www.example.com',
+    };
+
+    const result = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401);
+
+    expect(result).toBeDefined();
+
+    // check the length of the blogs has not increased
+    const blogs = await api.get('/api/blogs');
+    expect(blogs.body).toHaveLength(initialBlogs.length);
+  });
 });
 
 describe('verify bad request', () => {
