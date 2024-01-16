@@ -2,8 +2,12 @@ const mongoose = require('mongoose');
 const supertest = require('supertest');
 const app = require('../app');
 const Blog = require('../models/blogs');
+const User = require('../models/users');
 
 const api = supertest(app);
+
+let rootToken;
+let johnToken;
 
 const initialBlogs = [{
   author: 'John Doe',
@@ -15,6 +19,40 @@ const initialBlogs = [{
   title: 'YouTube',
   url: 'https://www.youtube.com',
 }];
+
+beforeAll(async () => {
+  await User.deleteMany({});
+
+  await api
+    .post('/api/users')
+    .send({
+      name: 'Superuser',
+      username: 'root',
+      password: '123',
+    });
+
+  await api
+    .post('/api/users')
+    .send({
+      name: 'John Doe',
+      username: 'johndoe',
+      password: '123',
+    });
+
+  const rootLoginResponse = await api
+    .post('/api/login')
+    .send({ username: 'root', password: '123' })
+    .expect(200);
+
+  rootToken = rootLoginResponse.body.token;
+
+  const johnLoginResponse = await api
+    .post('/api/login')
+    .send({ username: 'johndoe', password: '123' })
+    .expect(200);
+
+  johnToken = johnLoginResponse.body.token;
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -46,15 +84,18 @@ describe('when there is initially some blogs saved', () => {
 describe('addition of a new blog', () => {
   test('succeeds with a valid id', async () => {
     // create a new blog
-    const newBlog = new Blog({
+    const newBlog = {
       author: 'Test Add',
       title: 'Test Blog',
       url: 'https://www.example.com',
-    });
+    };
 
-    // send the blog to db
-    const result = await newBlog.save();
-    // check the blog was saved
+    const result = await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
+      .send(newBlog)
+      .expect(201);
+
     expect(result).toBeDefined();
 
     // check the length of the blogs has increased
