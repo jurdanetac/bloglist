@@ -160,6 +160,7 @@ describe('verify bad request', () => {
   test('on missing title', async () => {
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
       .send(newBlogWithoutTitle)
       .expect('Content-Type', /application\/json/)
       .expect(400);
@@ -168,6 +169,7 @@ describe('verify bad request', () => {
   test('on missing url', async () => {
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
       .send(newBlogWithoutUrl)
       .expect('Content-Type', /application\/json/)
       .expect(400);
