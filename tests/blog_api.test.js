@@ -58,6 +58,8 @@ beforeEach(async () => {
   await Blog.deleteMany({});
 
   const blogsObject = initialBlogs.map((blog) => new Blog(blog));
+  const root = await User.findOne({ username: 'root' });
+  blogsObject.forEach((blog) => blog.user = root._id);
   const promiseArray = blogsObject.map((blog) => blog.save());
   await Promise.all(promiseArray);
 });
@@ -179,12 +181,28 @@ describe('deletion of a blog', () => {
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${rootToken}`)
       .expect(204);
 
     const blogsAtEnd = await Blog.find({});
 
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
     expect(blogsAtEnd).not.toContainEqual(blogToDelete);
+  });
+
+  test('fails with status code 401 (Unauthorized) if user is not creator', async () => {
+    const blogsAtStart = await Blog.find({});
+    const blogToDelete = blogsAtStart[0];
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${johnToken}`)
+      .expect(401);
+
+    const blogsAtEnd = await Blog.find({});
+
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
+    expect(blogsAtEnd).toContainEqual(blogToDelete);
   });
 });
 
